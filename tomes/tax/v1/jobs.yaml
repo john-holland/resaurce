@@ -1,0 +1,19 @@
+# Tax document jobs — structural routing reference for resaurce Cave.
+# LVM tax lifecycle (TaxDocumentJob*) is emitted programmatically in taxHandlers + taxLvm.js
+# so phase order (queued → running → completed|failed) stays correct (see SPEC / plan).
+tome_semver: "0.1.0"
+domain: tax
+resource: jobs
+states:
+  - id: Idle
+    initial: true
+  - id: JobQueued
+  - id: JobRunning
+  - id: JobDone
+transitions:
+  - from: Idle
+    on: enqueue
+    structural_routes:
+      - tax/generate/enqueue
+    to: JobQueued
+    lvm_events: []

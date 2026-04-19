@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://resaurce.local/schemas/resaurce-frontend-tome-v1.json",
+  "title": "Resaurce frontend UI Tome",
+  "type": "object",
+  "required": ["tome_semver", "service", "surfaces", "allowed_routes"],
+  "properties": {
+    "tome_semver": { "type": "string" },
+    "service": { "const": "resaurce" },
+    "assets_base": { "type": "string" },
+    "surfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "allowed_routes": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^resaurce:[a-z0-9_/]+$" }
+    },
+    "default_reply_mode": { "type": "string", "enum": ["sync_http", "async_queue", "async_poll_token"] },
+    "lvm_view_hints": { "type": "object" },
+    "robotcopy": {
+      "type": "object",
+      "required": ["flows"],
+      "properties": {
+        "flows": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["route", "payload_template"],
+            "properties": {
+              "route": { "type": "string", "pattern": "^resaurce:" },
+              "requires_presence": { "type": "boolean" },
+              "payload_template": { "type": "object", "additionalProperties": true }
+            }
+          }
+        }
+      }
+    },
+    "federation": {
+      "type": "object",
+      "required": ["remote_name", "remote_entry_path", "exposed_module"],
+      "properties": {
+        "remote_name": { "type": "string" },
+        "remote_entry_path": { "type": "string", "pattern": "^/" },
+        "exposed_module": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

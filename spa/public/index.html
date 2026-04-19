@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resaurce module</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Resaurce</h1>
+      <p class="muted">Cave-hosted UI module — bootstraps from UI Tome, calls <code>POST /cave/route</code> only.</p>
+    </header>
+    <main>
+      <section id="tome-panel">
+        <h2>UI Tome</h2>
+        <pre id="tome-out">Loading…</pre>
+      </section>
+      <section id="actions">
+        <h2>Sample Cave calls</h2>
+        <p class="muted">Uses same envelope v2 as inventory clients.</p>
+        <button type="button" id="btn-session">HR help session</button>
+        <button type="button" id="btn-request">HR help request</button>
+        <button type="button" id="btn-legal">Legal review</button>
+        <pre id="cave-out"></pre>
+      </section>
+    </main>
+    <script src="./cave-federation-host.js"></script>
+    <script src="./app.js" defer></script>
+  </body>
+</html>

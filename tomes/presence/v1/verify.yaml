@@ -1,0 +1,16 @@
+# Presence verify — Tome fragment (resaurce)
+tome_semver: "0.1.0"
+domain: presence
+resource: verify
+states:
+  - id: Unknown
+    initial: true
+  - id: Verified
+transitions:
+  - from: Unknown
+    on: verify
+    structural_routes:
+      - presence/verify
+    to: Verified
+    lvm_events:
+      - PresenceVerifyHandled

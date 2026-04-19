@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://inventory.local/schemas/cave-envelope-v2.json",
+  "title": "CaveEnvelopeV2",
+  "type": "object",
+  "required": ["schema_version", "route", "payload", "trace_id", "reply_mode"],
+  "properties": {
+    "schema_version": { "const": "2.0" },
+    "route": { "type": "string", "minLength": 1 },
+    "payload": { "type": "object" },
+    "trace_id": { "type": "string", "minLength": 1 },
+    "causation_id": { "type": ["string", "null"] },
+    "presence": { "type": ["string", "null"] },
+    "reply_mode": { "enum": ["sync_http", "async_queue", "async_poll_token"] },
+    "reply_to": { "type": ["string", "null"] },
+    "tome_semver": { "type": ["string", "null"] },
+    "tenant": { "type": ["string", "null"] }
+  },
+  "additionalProperties": true
+}

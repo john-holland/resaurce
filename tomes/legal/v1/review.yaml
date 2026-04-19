@@ -1,0 +1,17 @@
+# Legal document review — Tome fragment (resaurce)
+tome_semver: "0.1.0"
+domain: legal
+resource: review
+states:
+  - id: Idle
+    initial: true
+  - id: Queued
+transitions:
+  - from: Idle
+    on: queue
+    structural_routes:
+      - legal/document/review
+    to: Queued
+    lvm_events:
+      - LegalReviewQueued
+      - TransitionCommitted

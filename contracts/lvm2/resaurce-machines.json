@@ -1,0 +1,46 @@
+{
+  "service": "resaurce",
+  "schema_version": "lvm2.node_cave_manifest/1",
+  "machines": [
+    {
+      "id": "resaurce:hrHelp",
+      "prefixes": ["hr/"],
+      "structural_routes": [
+        "hr/help/session",
+        "hr/help/request",
+        "hr/employees/available",
+        "hr/chat/room/create",
+        "hr/chat/message/send",
+        "hr/chat/messages/list"
+      ],
+      "xstate_states": ["idle", "done"],
+      "xstate_events": ["ROUTE"]
+    },
+    {
+      "id": "resaurce:taxDocuments",
+      "prefixes": ["tax/"],
+      "structural_routes": [
+        "tax/documents/list",
+        "tax/generate/enqueue",
+        "tax/generate/status",
+        "tax/generate/result"
+      ],
+      "xstate_states": ["idle", "done"],
+      "xstate_events": ["ROUTE"]
+    },
+    {
+      "id": "resaurce:legalDocument",
+      "prefixes": ["legal/"],
+      "structural_routes": ["legal/document/review"],
+      "xstate_states": ["idle", "done"],
+      "xstate_events": ["ROUTE"]
+    },
+    {
+      "id": "resaurce:presence",
+      "prefixes": ["presence/"],
+      "structural_routes": ["presence/verify"],
+      "xstate_states": ["idle", "done"],
+      "xstate_events": ["ROUTE"]
+    }
+  ]
+}

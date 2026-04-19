@@ -1,0 +1,44 @@
+:root {
+  font-family: system-ui, sans-serif;
+  line-height: 1.4;
+  color: #0f172a;
+  background: #f8fafc;
+}
+body {
+  margin: 0 auto;
+  max-width: 52rem;
+  padding: 1.5rem;
+}
+header h1 {
+  margin: 0 0 0.25rem;
+}
+.muted {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+section {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+}
+pre {
+  overflow: auto;
+  font-size: 0.8rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+button {
+  margin: 0.35rem 0.5rem 0.35rem 0;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid #94a3b8;
+  background: #fff;
+  cursor: pointer;
+}
+button:hover {
+  background: #f1f5f9;
+}

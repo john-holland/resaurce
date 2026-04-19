@@ -1,0 +1,23 @@
+# Example Tome fragment — HR help (placeholder for resaurce Cave)
+tome_semver: "0.1.0"
+domain: hr
+resource: help
+states:
+  - id: Idle
+    initial: true
+  - id: SessionRequested
+  - id: SessionActive
+transitions:
+  - from: Idle
+    on: request
+    structural_routes:
+      - hr/help/request
+    to: SessionRequested
+    lvm_events:
+      - RouteReceived
+      - TransitionCommitted
+  - from: SessionRequested
+    on: chat_created
+    to: SessionActive
+    lvm_events:
+      - SideEffectScheduled

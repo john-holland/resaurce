@@ -1,0 +1,23 @@
+# HR chat — Tome fragment for LVM hooks (resaurce)
+tome_semver: "0.1.0"
+domain: hr
+resource: chat
+states:
+  - id: Idle
+    initial: true
+transitions:
+  - from: Idle
+    on: room_create
+    structural_routes:
+      - hr/chat/room/create
+    to: Idle
+    lvm_events:
+      - HrChatRoomCreated
+      - TransitionCommitted
+  - from: Idle
+    on: message_send
+    structural_routes:
+      - hr/chat/message/send
+    to: Idle
+    lvm_events:
+      - HrChatMessageSent

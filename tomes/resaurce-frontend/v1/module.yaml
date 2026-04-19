@@ -1,0 +1,95 @@
+# Consumable UI Tome — authoritative in resaurce; Cave serves as JSON via GET /tome/resaurce-frontend
+tome_semver: "1.2.0"
+service: resaurce
+assets_base: "/app"
+surfaces:
+  - id: hr_help
+    title: HR Help
+  - id: tax_documents
+    title: Tax documents
+  - id: legal_review
+    title: Legal document review
+  - id: presence
+    title: Presence
+allowed_routes:
+  - "resaurce:hr/help/session"
+  - "resaurce:hr/help/request"
+  - "resaurce:hr/employees/available"
+  - "resaurce:hr/chat/room/create"
+  - "resaurce:hr/chat/message/send"
+  - "resaurce:hr/chat/messages/list"
+  - "resaurce:tax/documents/list"
+  - "resaurce:tax/generate/enqueue"
+  - "resaurce:tax/generate/status"
+  - "resaurce:tax/generate/result"
+  - "resaurce:legal/document/review"
+  - "resaurce:presence/verify"
+default_reply_mode: sync_http
+lvm_view_hints:
+  service: resaurce
+
+# RobotCopy: named flows Inventory runtime executes via sendCaveRoute + presence adapters
+robotcopy:
+  flows:
+    request_hr_help:
+      route: "resaurce:hr/help/request"
+      requires_presence: true
+      payload_template:
+        userId: "{{userId}}"
+        context: "{{context}}"
+        skillsRequired: "{{skillsRequired}}"
+        urgency: "{{urgency}}"
+    list_available_employees:
+      route: "resaurce:hr/employees/available"
+      requires_presence: false
+      payload_template:
+        request_time: "{{requestTime}}"
+        skills_required: "{{skillsRequired}}"
+    create_chat_room:
+      route: "resaurce:hr/chat/room/create"
+      requires_presence: true
+      payload_template:
+        name: "{{name}}"
+        participants: "{{participants}}"
+    send_chat_message:
+      route: "resaurce:hr/chat/message/send"
+      requires_presence: true
+      payload_template:
+        chat_room_id: "{{chatRoomId}}"
+        sender: "{{sender}}"
+        content: "{{content}}"
+        type: "{{messageType}}"
+    list_chat_messages:
+      route: "resaurce:hr/chat/messages/list"
+      requires_presence: false
+      payload_template:
+        chat_room_id: "{{chatRoomId}}"
+    tax_documents_list:
+      route: "resaurce:tax/documents/list"
+      requires_presence: false
+      payload_template: {}
+    tax_generate_enqueue:
+      route: "resaurce:tax/generate/enqueue"
+      requires_presence: false
+      payload_template:
+        user_id: "{{userId}}"
+        year: "{{year}}"
+        document_type: "{{documentType}}"
+        trace_id: "{{traceId}}"
+        session_id: "{{sessionId}}"
+    tax_generate_status:
+      route: "resaurce:tax/generate/status"
+      requires_presence: false
+      payload_template:
+        job_id: "{{jobId}}"
+    tax_generate_result:
+      route: "resaurce:tax/generate/result"
+      requires_presence: false
+      payload_template:
+        job_id: "{{jobId}}"
+
+# Module Federation remote (built by hr-remote/); Inventory host loads remoteEntry from this URL
+federation:
+  remote_name: resaurce_hr
+  remote_entry_path: "/remote/remoteEntry.js"
+  exposed_module: "./HrChatApp"

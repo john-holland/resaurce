@@ -1,0 +1,337 @@
+{
+  "consumer": {
+    "name": "inventory-frontend"
+  },
+  "interactions": [
+    {
+      "description": "a Cave envelope for resaurce HR employees available",
+      "providerState": "resaurce Cave is healthy",
+      "request": {
+        "body": {
+          "payload": {
+            "skills_required": [
+              "documents"
+            ]
+          },
+          "reply_mode": "sync_http",
+          "route": "resaurce:hr/employees/available",
+          "schema_version": "2.0",
+          "trace_id": "trace-emp-1"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.trace_id": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/cave/route"
+      },
+      "response": {
+        "body": {
+          "employees": [
+            {
+              "currentLoad": 2,
+              "email": "a@b.com",
+              "id": "hr_001",
+              "maxLoad": 5,
+              "name": "Sarah Johnson",
+              "rating": 4.8,
+              "skills": [
+                "documents"
+              ]
+            }
+          ],
+          "ok": true,
+          "trace_id": "trace-emp-1"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.employees": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.employees[*].email": {
+            "match": "type"
+          },
+          "$.body.employees[*].id": {
+            "match": "type"
+          },
+          "$.body.employees[*].name": {
+            "match": "type"
+          },
+          "$.body.trace_id": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a Cave envelope for resaurce HR help request",
+      "providerState": "resaurce Cave is healthy",
+      "request": {
+        "body": {
+          "payload": {
+            "context": "doc help",
+            "skillsRequired": [
+              "documents"
+            ],
+            "urgency": "medium",
+            "userId": "user-1"
+          },
+          "reply_mode": "sync_http",
+          "route": "resaurce:hr/help/request",
+          "schema_version": "2.0",
+          "trace_id": "trace-hr-1"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.payload.context": {
+            "match": "type"
+          },
+          "$.body.payload.userId": {
+            "match": "type"
+          },
+          "$.body.trace_id": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/cave/route"
+      },
+      "response": {
+        "body": {
+          "chatRoomId": "chat_x",
+          "context": "doc help",
+          "hrEmployeeId": "hr_resaurce_001",
+          "ok": true,
+          "sessionId": "hr_session_1",
+          "trace_id": "trace-hr-1"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.chatRoomId": {
+            "match": "type"
+          },
+          "$.body.context": {
+            "match": "type"
+          },
+          "$.body.hrEmployeeId": {
+            "match": "type"
+          },
+          "$.body.sessionId": {
+            "match": "type"
+          },
+          "$.body.trace_id": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a Cave envelope for resaurce HR route",
+      "providerState": "resaurce Cave is healthy",
+      "request": {
+        "body": {
+          "payload": {
+            "employee_id": "emp-1"
+          },
+          "reply_mode": "sync_http",
+          "route": "resaurce:hr/help/session",
+          "schema_version": "2.0",
+          "trace_id": "trace-1"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.payload.employee_id": {
+            "match": "type"
+          },
+          "$.body.trace_id": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/cave/route"
+      },
+      "response": {
+        "body": {
+          "echoed_route": "resaurce:hr/help/session",
+          "ok": true,
+          "service": "resaurce"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.echoed_route": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a Cave envelope for resaurce tax documents list",
+      "providerState": "resaurce Cave is healthy",
+      "request": {
+        "body": {
+          "payload": {},
+          "reply_mode": "sync_http",
+          "route": "resaurce:tax/documents/list",
+          "schema_version": "2.0",
+          "trace_id": "trace-tax-list"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.trace_id": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/cave/route"
+      },
+      "response": {
+        "body": {
+          "documents": [
+            {
+              "description": "Annual",
+              "id": "doc_tax_w2",
+              "name": "W2",
+              "status": "available",
+              "type": "tax"
+            }
+          ],
+          "ok": true,
+          "trace_id": "trace-tax-list"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.documents": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.documents[*].description": {
+            "match": "type"
+          },
+          "$.body.documents[*].id": {
+            "match": "type"
+          },
+          "$.body.documents[*].name": {
+            "match": "type"
+          },
+          "$.body.trace_id": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a Cave envelope for resaurce tax generate enqueue",
+      "providerState": "resaurce Cave is healthy",
+      "request": {
+        "body": {
+          "payload": {
+            "document_type": "w2",
+            "session_id": "sess-tax-1",
+            "trace_id": "trace-tax-job",
+            "user_id": "user-1",
+            "year": 2024
+          },
+          "reply_mode": "sync_http",
+          "route": "resaurce:tax/generate/enqueue",
+          "schema_version": "2.0",
+          "trace_id": "trace-tax-job"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.payload.document_type": {
+            "match": "type"
+          },
+          "$.body.payload.session_id": {
+            "match": "type"
+          },
+          "$.body.payload.trace_id": {
+            "match": "type"
+          },
+          "$.body.payload.user_id": {
+            "match": "type"
+          },
+          "$.body.trace_id": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/cave/route"
+      },
+      "response": {
+        "body": {
+          "document": {
+            "document_type": "W2",
+            "user_id": "user-1",
+            "year": 2024
+          },
+          "job_id": "job_x",
+          "ok": true,
+          "session_id": "sess-tax-1",
+          "status": "completed",
+          "trace_id": "trace-tax-job"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.document.document_type": {
+            "match": "type"
+          },
+          "$.body.document.user_id": {
+            "match": "type"
+          },
+          "$.body.job_id": {
+            "match": "type"
+          },
+          "$.body.session_id": {
+            "match": "type"
+          },
+          "$.body.trace_id": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "10.4.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.0",
+      "models": "1.0.4"
+    },
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  },
+  "provider": {
+    "name": "resaurce-cave"
+  }
+}
