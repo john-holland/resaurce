@@ -1,0 +1,26 @@
+{
+  "name": "resaurce",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cave host for HR, legal, and presence (resaurce service)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "build:hr-remote": "npm --prefix hr-remote install && npm --prefix hr-remote run build",
+    "verify:pact": "node scripts/verify-pact.js",
+    "test:smoke": "node --test scripts/cave-smoke.test.js",
+    "test:unit": "node --test scripts/xstate-route.test.js",
+    "test": "npm run test:smoke && npm run test:unit"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "js-yaml": "^4.1.0",
+    "xstate": "^4.38.3"
+  },
+  "devDependencies": {
+    "@pact-foundation/pact": "^10.4.0"
+  }
+}
