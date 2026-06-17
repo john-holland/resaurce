@@ -1,30 +1,15 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
 const { parseRoute } = require('./paths');
-
-const MANIFEST_PATH = path.join(__dirname, '../../contracts/lvm2/resaurce-machines.json');
-
-/** @type {Record<string, unknown> | null} */
-let cachedManifest = null;
-
-function getCaveRouteManifest() {
-  if (!cachedManifest) {
-    const raw = fs.readFileSync(MANIFEST_PATH, 'utf8');
-    cachedManifest = JSON.parse(raw);
-  }
-  return cachedManifest;
-}
+const { loadCaveManifest } = require('./manifestLoader');
 
 /**
- * Resolve LVM2 manifest machine id for a structural route (exact match on structural_routes, else prefix).
+ * Resolve machine id for a structural route from cave.manifest.yaml lvm.machines.
  * @param {string} structural
- * @returns {string | null}
  */
 function structuralToMachineId(structural) {
-  const doc = getCaveRouteManifest();
-  const machines = Array.isArray(doc.machines) ? doc.machines : [];
+  const doc = loadCaveManifest();
+  const machines = Array.isArray(doc.lvm?.machines) ? doc.lvm.machines : [];
   for (const row of machines) {
     const routes = Array.isArray(row.structural_routes) ? row.structural_routes : [];
     if (routes.includes(structural)) return typeof row.id === 'string' ? row.id : null;
@@ -40,8 +25,15 @@ function structuralToMachineId(structural) {
   return null;
 }
 
+function getCaveRouteManifest() {
+  const m = loadCaveManifest();
+  return {
+    service: m.service || 'resaurce',
+    machines: m.lvm?.machines || [],
+  };
+}
+
 /**
- * Parse envelope and attach manifest metadata (same source as GET /lvm2/discover).
  * @param {{ route: string, payload?: Record<string, unknown>, trace_id?: string, tenant?: string }} body
  */
 function runCaveRoutePipeline(body) {
@@ -51,15 +43,17 @@ function runCaveRoutePipeline(body) {
   const tenant = body.tenant != null ? String(body.tenant) : '';
   const { structural, explicitService } = parseRoute(route);
   const machineId = explicitService === 'resaurce' ? structuralToMachineId(structural) : null;
+  const manifest = getCaveRouteManifest();
   return {
     ctx: { structural, route, payload, traceId, tenant, explicitService },
     machineId,
-    manifestService: typeof getCaveRouteManifest().service === 'string' ? getCaveRouteManifest().service : 'resaurce',
+    manifestService: manifest.service,
   };
 }
 
 function reloadRouteManifestCache() {
-  cachedManifest = null;
+  const { reloadManifest } = require('./manifestLoader');
+  reloadManifest();
 }
 
 module.exports = {
@@ -67,5 +61,4 @@ module.exports = {
   structuralToMachineId,
   runCaveRoutePipeline,
   reloadRouteManifestCache,
-  MANIFEST_PATH,
 };

@@ -1,0 +1,400 @@
+schema_version: cave-manifest/1
+service: resaurce
+cave:
+  defaults:
+    transport: http
+    reply_mode: sync_http
+  cave_robit:
+    middleware:
+      - presence_forward
+      - envelope_v2
+      - trace_loop_guard
+  structural:
+    hr/**:
+      machine: resaurce:hrHelp
+    tax/**:
+      machine: resaurce:taxDocuments
+messages:
+  request_hr_help: hr/help/request
+  list_available_employees: hr/employees/available
+  create_chat_room: hr/chat/room/create
+  send_chat_message: hr/chat/message/send
+  list_chat_messages: hr/chat/messages/list
+  tax_documents_list: tax/documents/list
+  tax_generate_enqueue: tax/generate/enqueue
+  tax_generate_status: tax/generate/status
+  tax_generate_result: tax/generate/result
+  legal_document_review: legal/document/review
+  presence_verify: presence/verify
+  trace_heartbeat: presence/verify
+  legal_documents_list: legal/documents/list
+  legal_document_enqueue: legal/document/enqueue
+  inventory_report_list: inventory/report/list
+  inventory_report_enqueue: inventory/report/enqueue
+  sales_report_list: sales/report/list
+  sales_report_enqueue: sales/report/enqueue
+tomes:
+  hr/help:
+    messages:
+      request_hr_help: resaurce:hr/help/request
+    transitions:
+      - from: Idle
+        on: request
+        structural_routes:
+          - hr/help/request
+  frontend:
+    tome_semver: 1.2.0
+    surfaces:
+      - id: hr_help
+        title: HR Help
+      - id: tax_documents
+        title: Tax documents
+      - id: legal_review
+        title: Legal document review
+      - id: presence
+        title: Presence
+      - id: inventory_reports
+        title: inventory reports
+      - id: sales_reports
+        title: sales reports
+    assets_base: /app
+    federation:
+      remote_name: resaurce_hr
+      remote_entry_path: /remote/remoteEntry.js
+      exposed_module: ./HrChatApp
+  tax_documents:
+    schema_version: tome-module/2
+    messages:
+      tax_documents_list: tax/documents/list
+      tax_generate_enqueue: tax/generate/enqueue
+      tax_generate_status: tax/generate/status
+      tax_generate_result: tax/generate/result
+    state_middleware:
+      - trace
+      - presence
+      - delegation
+      - robotCopy
+      - caveDbSnapshot
+      - log
+    views:
+      TaxIdleView:
+        module: documents/tax/IdleView
+      TaxLoadingView:
+        module: documents/tax/LoadingView
+      TaxReadyView:
+        module: documents/tax/ReadyView
+      TaxGeneratingView:
+        module: documents/tax/GeneratingView
+      TaxErrorView:
+        module: documents/tax/ErrorView
+    lvm:
+      machines:
+        - id: inventory:taxDocumentsUi
+          initial: idle
+          states:
+            idle:
+              view: TaxIdleView
+            loading:
+              view: TaxLoadingView
+              on_enter:
+                message: tax_documents_list
+            ready:
+              view: TaxReadyView
+            generating:
+              view: TaxGeneratingView
+            error:
+              view: TaxErrorView
+  legal_review:
+    schema_version: tome-module/2
+    messages:
+      legal_documents_list: legal/documents/list
+      legal_document_enqueue: legal/document/enqueue
+    state_middleware:
+      - trace
+      - presence
+      - delegation
+      - robotCopy
+      - caveDbSnapshot
+      - log
+    views:
+      LegalIdleView:
+        module: documents/legal/IdleView
+      LegalLoadingView:
+        module: documents/legal/LoadingView
+      LegalReadyView:
+        module: documents/legal/ReadyView
+      LegalGeneratingView:
+        module: documents/legal/GeneratingView
+      LegalErrorView:
+        module: documents/legal/ErrorView
+    lvm:
+      machines:
+        - id: inventory:legalReviewUi
+          initial: idle
+          states:
+            idle:
+              view: LegalIdleView
+            loading:
+              view: LegalLoadingView
+              on_enter:
+                message: legal_documents_list
+            ready:
+              view: LegalReadyView
+            generating:
+              view: LegalGeneratingView
+              on_enter:
+                message: legal_document_enqueue
+            error:
+              view: LegalErrorView
+  inventory_reports:
+    schema_version: tome-module/2
+    messages:
+      inventory_report_list: inventory/report/list
+      inventory_report_enqueue: inventory/report/enqueue
+    state_middleware:
+      - trace
+      - presence
+      - delegation
+      - robotCopy
+      - caveDbSnapshot
+      - log
+    views:
+      InventoryReportsIdleView:
+        module: documents/inventory/IdleView
+      InventoryReportsLoadingView:
+        module: documents/inventory/LoadingView
+      InventoryReportsReadyView:
+        module: documents/inventory/ReadyView
+      InventoryReportsGeneratingView:
+        module: documents/inventory/GeneratingView
+      InventoryReportsErrorView:
+        module: documents/inventory/ErrorView
+    lvm:
+      machines:
+        - id: inventory:inventoryReportsUi
+          initial: idle
+          states:
+            idle:
+              view: InventoryReportsIdleView
+            loading:
+              view: InventoryReportsLoadingView
+              on_enter:
+                message: inventory_report_list
+            ready:
+              view: InventoryReportsReadyView
+            generating:
+              view: InventoryReportsGeneratingView
+              on_enter:
+                message: inventory_report_enqueue
+            error:
+              view: InventoryReportsErrorView
+  sales_reports:
+    schema_version: tome-module/2
+    messages:
+      sales_report_list: sales/report/list
+      sales_report_enqueue: sales/report/enqueue
+    state_middleware:
+      - trace
+      - presence
+      - delegation
+      - robotCopy
+      - caveDbSnapshot
+      - log
+    views:
+      SalesReportsIdleView:
+        module: documents/sales/IdleView
+      SalesReportsLoadingView:
+        module: documents/sales/LoadingView
+      SalesReportsReadyView:
+        module: documents/sales/ReadyView
+      SalesReportsGeneratingView:
+        module: documents/sales/GeneratingView
+      SalesReportsErrorView:
+        module: documents/sales/ErrorView
+    lvm:
+      machines:
+        - id: inventory:salesReportsUi
+          initial: idle
+          states:
+            idle:
+              view: SalesReportsIdleView
+            loading:
+              view: SalesReportsLoadingView
+              on_enter:
+                message: sales_report_list
+            ready:
+              view: SalesReportsReadyView
+            generating:
+              view: SalesReportsGeneratingView
+              on_enter:
+                message: sales_report_enqueue
+            error:
+              view: SalesReportsErrorView
+lvm:
+  machines:
+    - id: resaurce:hrHelp
+      prefixes:
+        - hr/
+      structural_routes:
+        - hr/help/session
+        - hr/help/request
+        - hr/employees/available
+        - hr/chat/room/create
+        - hr/chat/message/send
+        - hr/chat/messages/list
+    - id: resaurce:taxDocuments
+      prefixes:
+        - tax/
+      structural_routes:
+        - tax/documents/list
+        - tax/generate/enqueue
+        - tax/generate/status
+        - tax/generate/result
+    - id: resaurce:legalDocument
+      prefixes:
+        - legal/
+      structural_routes:
+        - legal/documents/list
+        - legal/document/enqueue
+        - legal/document/review
+    - id: resaurce:inventoryReports
+      prefixes:
+        - inventory/
+      structural_routes:
+        - inventory/report/list
+        - inventory/report/enqueue
+    - id: resaurce:salesReports
+      prefixes:
+        - sales/
+      structural_routes:
+        - sales/report/list
+        - sales/report/enqueue
+    - id: resaurce:presence
+      prefixes:
+        - presence/
+      structural_routes:
+        - presence/verify
+    - id: inventory:taxDocumentsUi
+      prefixes: []
+      structural_routes: []
+    - id: inventory:legalReviewUi
+      prefixes: []
+      structural_routes: []
+    - id: inventory:inventoryReportsUi
+      prefixes: []
+      structural_routes: []
+    - id: inventory:salesReportsUi
+      prefixes: []
+      structural_routes: []
+  multicast:
+    tax_generate_fanout:
+      message: tax_generate_enqueue
+      targets:
+        - tax/generate/status
+      mode: parallel
+      aggregate: all_ok
+encapsulation:
+  allowed_routes:
+    - resaurce:hr/help/session
+    - resaurce:hr/help/request
+    - resaurce:hr/employees/available
+    - resaurce:hr/chat/room/create
+    - resaurce:hr/chat/message/send
+    - resaurce:hr/chat/messages/list
+    - resaurce:tax/documents/list
+    - resaurce:tax/generate/enqueue
+    - resaurce:tax/generate/status
+    - resaurce:tax/generate/result
+    - resaurce:legal/document/review
+    - resaurce:legal/documents/list
+    - resaurce:legal/document/enqueue
+    - resaurce:inventory/report/list
+    - resaurce:inventory/report/enqueue
+    - resaurce:sales/report/list
+    - resaurce:sales/report/enqueue
+    - resaurce:presence/verify
+  presence:
+    verify_route: presence/verify
+    cross_cave: true
+robotcopy:
+  flows:
+    request_hr_help:
+      message: request_hr_help
+      requires_presence: true
+      payload_template:
+        userId: "{{userId}}"
+        context: "{{context}}"
+        skillsRequired: "{{skillsRequired}}"
+        urgency: "{{urgency}}"
+    list_available_employees:
+      message: list_available_employees
+      payload_template:
+        request_time: "{{requestTime}}"
+        skills_required: "{{skillsRequired}}"
+    create_chat_room:
+      message: create_chat_room
+      requires_presence: true
+      payload_template:
+        name: "{{name}}"
+        participants: "{{participants}}"
+    send_chat_message:
+      message: send_chat_message
+      requires_presence: true
+      payload_template:
+        chat_room_id: "{{chatRoomId}}"
+        sender: "{{sender}}"
+        content: "{{content}}"
+        type: "{{messageType}}"
+    list_chat_messages:
+      message: list_chat_messages
+      payload_template:
+        chat_room_id: "{{chatRoomId}}"
+    tax_documents_list:
+      message: tax_documents_list
+      payload_template: {}
+    tax_generate_enqueue:
+      message: tax_generate_enqueue
+      payload_template:
+        document_type: "{{documentType}}"
+    tax_generate_status:
+      message: tax_generate_status
+      payload_template:
+        job_id: "{{jobId}}"
+    tax_generate_result:
+      message: tax_generate_result
+      payload_template:
+        job_id: "{{jobId}}"
+    legal_documents_list:
+      message: legal_documents_list
+      payload_template: {}
+    legal_document_enqueue:
+      message: legal_document_enqueue
+      payload_template:
+        document_id: "{{documentId}}"
+        document_type: "{{documentType}}"
+    inventory_report_list:
+      message: inventory_report_list
+      payload_template: {}
+    inventory_report_enqueue:
+      message: inventory_report_enqueue
+      payload_template:
+        report_type: "{{reportType}}"
+    sales_report_list:
+      message: sales_report_list
+      payload_template: {}
+    sales_report_enqueue:
+      message: sales_report_enqueue
+      payload_template:
+        report_type: "{{reportType}}"
+trace_loop:
+  detect: true
+  prevent: true
+  max_hops: 32
+  max_depth: 16
+  ttl_ms: 300000
+  heartbeat:
+    enabled: true
+    message: trace_heartbeat
+    exempt_messages:
+      - trace_heartbeat
+      - presence_verify

@@ -52,7 +52,13 @@ test('Cave HR session + request + UI Tome + lvm append', async (t) => {
     const tome = await request(port, 'GET', '/tome/resaurce-frontend');
     assert.strictEqual(tome.status, 200);
     assert.strictEqual(tome.json.service, 'resaurce');
-    assert.ok(Array.isArray(tome.json.allowed_routes));
+    assert.ok(Array.isArray(tome.json.surfaces));
+    assert.ok(tome.json.federation?.remote_entry_path);
+
+    const manifest = await request(port, 'GET', '/cave/manifest');
+    assert.strictEqual(manifest.status, 200);
+    assert.strictEqual(manifest.json.schema_version, 'cave-manifest/1');
+    assert.ok(manifest.json.messages?.request_hr_help);
 
     const lvm2 = await request(port, 'GET', '/lvm2/discover');
     assert.strictEqual(lvm2.status, 200);
@@ -143,6 +149,36 @@ test('Cave HR session + request + UI Tome + lvm append', async (t) => {
       trace_id: 't-x',
     });
     assert.strictEqual(bad.status, 404);
+
+    const msgHr = await request(port, 'POST', '/cave/route', {
+      schema_version: '2.0',
+      message: 'request_hr_help',
+      payload: { userId: 'u-msg', context: 'message delegation' },
+      trace_id: 't-msg-hr',
+      reply_mode: 'sync_http',
+    });
+    assert.strictEqual(msgHr.status, 200);
+    assert.strictEqual(msgHr.json.ok, true);
+
+    const loop = await request(port, 'POST', '/cave/route', {
+      schema_version: '2.0',
+      route: 'resaurce:hr/help/request',
+      message: 'request_hr_help',
+      payload: { userId: 'u-loop' },
+      trace_id: 't-loop',
+      causality_path: [
+        {
+          service: 'resaurce',
+          route: 'resaurce:hr/help/request',
+          message: 'request_hr_help',
+          hop: 1,
+          at: new Date().toISOString(),
+        },
+      ],
+      reply_mode: 'sync_http',
+    });
+    assert.strictEqual(loop.status, 403);
+    assert.strictEqual(loop.json.error, 'CAUSAL_LOOP_DETECTED');
   } finally {
     await new Promise((r) => srv.close(r));
   }

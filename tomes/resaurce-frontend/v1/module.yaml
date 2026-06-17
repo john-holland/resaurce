@@ -1,4 +1,5 @@
-# Consumable UI Tome — authoritative in resaurce; Cave serves as JSON via GET /tome/resaurce-frontend
+# UI Tome static slice — served via GET /tome/resaurce-frontend (surfaces + federation only).
+# Authoritative routing, messages, and robotcopy.flows: resaurce/cave.manifest.yaml (GET /cave/manifest).
 tome_semver: "1.2.0"
 service: resaurce
 assets_base: "/app"

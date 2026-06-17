@@ -4,9 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const { handleCaveRoute } = require('./cave/router');
+const { createCaveEnvelopeMiddleware } = require('./cave/envelopeMiddleware');
 const { applyDevMockEnvelope } = require('./cave/devIdentity');
 const { handleLvmAppend } = require('./lvm/appendHandler');
 const { loadFrontendTomeJson } = require('./tome/frontendTome');
+const { loadCaveManifest, projectLvm2Discover, projectFrontendTomeJson } = require('./cave/manifestLoader');
 
 const app = express();
 app.use(express.json({ limit: '2mb' }));
@@ -46,42 +48,50 @@ app.get('/tome/resaurce-frontend', (_req, res) => {
   res.json(doc);
 });
 
+app.get('/cave/manifest', (_req, res) => {
+  const doc = loadCaveManifest();
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  res.json(doc);
+});
+
+app.get('/cave/federation', (_req, res) => {
+  const doc = projectFrontendTomeJson();
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  res.json(doc);
+});
+
 app.get('/lvm2/discover', (_req, res) => {
-  const manifestPath = path.join(__dirname, '../contracts/lvm2/resaurce-machines.json');
   try {
-    const raw = fs.readFileSync(manifestPath, 'utf8');
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.json(JSON.parse(raw));
+    res.json(projectLvm2Discover());
   } catch {
     res.status(500).json({ ok: false, error: 'manifest_unavailable' });
   }
 });
 
-function enforceAllowedRoutes(body) {
-  if (process.env.RESAURCE_ENFORCE_ALLOWED_ROUTES !== '1') return null;
-  const route = String(body.route || '');
-  const ui = loadFrontendTomeJson();
-  const allowed = Array.isArray(ui.allowed_routes) ? ui.allowed_routes : [];
-  if (route && !allowed.includes(route)) {
-    return { ok: false, error: 'route_not_allowed', route };
+app.post(
+  '/cave/route',
+  (req, _res, next) => {
+    req.body = applyDevMockEnvelope(req.body || {});
+    next();
+  },
+  createCaveEnvelopeMiddleware(),
+  (req, res) => {
+    const body = req.caveEnvelope || req.body || {};
+    if (body.schema_version && body.schema_version !== '2.0') {
+      return res.status(400).json({ ok: false, error: 'unsupported_schema' });
+    }
+    const out = handleCaveRoute(body, { skipPreprocess: true });
+    let status = 200;
+    if (out.ok === false) {
+      if (out.error === 'unknown_route' || out.error === 'UNKNOWN_MESSAGE') status = 404;
+      else if (out.error === 'route_not_allowed' || out.error === 'CAUSAL_LOOP_DETECTED') status = 403;
+    }
+    res.status(status).json(out);
   }
-  return null;
-}
-
-app.post('/cave/route', (req, res) => {
-  let body = req.body || {};
-  if (body.schema_version && body.schema_version !== '2.0') {
-    return res.status(400).json({ ok: false, error: 'unsupported_schema' });
-  }
-  body = applyDevMockEnvelope(body);
-  const denied = enforceAllowedRoutes(body);
-  if (denied) {
-    return res.status(403).json(denied);
-  }
-  const out = handleCaveRoute(body);
-  const status = out.ok === false && out.error === 'unknown_route' ? 404 : 200;
-  res.status(status).json(out);
-});
+);
 
 app.post('/lvm/append', (req, res) => {
   const body = req.body || {};

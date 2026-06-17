@@ -4,6 +4,8 @@ const { createRouteInterpreter, createDomainRouteMachine } = require('./createRo
 const { handleHr } = require('../../domains/hr/hrHandlers');
 const { handleTax } = require('../../domains/tax/taxHandlers');
 const { handleLegal } = require('../../domains/legal/legalHandlers');
+const { handleInventory } = require('../../domains/inventory/inventoryHandlers');
+const { handleSales } = require('../../domains/sales/salesHandlers');
 const { handlePresence } = require('../../domains/presence/presenceHandlers');
 
 let _interpreter;
@@ -25,6 +27,16 @@ function getResaurceRouteInterpreter() {
         id: 'resaurce:legalDocument',
         prefixes: ['legal/'],
         machine: createDomainRouteMachine('resaurce:legalDocument', handleLegal),
+      },
+      {
+        id: 'resaurce:inventoryReports',
+        prefixes: ['inventory/'],
+        machine: createDomainRouteMachine('resaurce:inventoryReports', handleInventory),
+      },
+      {
+        id: 'resaurce:salesReports',
+        prefixes: ['sales/'],
+        machine: createDomainRouteMachine('resaurce:salesReports', handleSales),
       },
       {
         id: 'resaurce:presence',

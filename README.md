@@ -56,9 +56,12 @@ npm run verify:pact
 
 | Method / path | Purpose |
 |---------------|---------|
-| `POST /cave/route` | Cave envelope v2 (`schema_version`, `route`, `payload`, `trace_id`, …). |
+| `POST /cave/route` | Cave envelope v2 (`schema_version`, `message` or `route`, `payload`, `trace_id`, …). Message names resolve via `cave.manifest.yaml`. |
 | `POST /lvm/append` | Body `{ "trace_id", "events": [...] }` — stored and optionally forwarded. |
-| `GET /tome/resaurce-frontend` | Canonical **UI Tome** JSON (from `tomes/resaurce-frontend/v1/module.yaml`). |
+| `GET /cave/manifest` | Authoritative **Cave manifest** (`cave.manifest.yaml`) — messages, tomes, LVM machines, robotcopy flows. |
+| `GET /cave/federation` | Static federation slice only (surfaces, assets, MF remotes — no routing tables). |
+| `GET /tome/resaurce-frontend` | Same static slice as `/cave/federation` (Module Federation / UI shell). |
+| `GET /lvm2/discover` | LVM machine metadata projected from `cave.manifest.yaml` (`contracts/lvm2/*.json` is deprecated). |
 | `GET /app/*` | Service-hosted SPA static assets. |
 | `GET /remote/*` | Webpack Module Federation build from `hr-remote/` (`remoteEntry.js` and chunks). |
 | `GET /health` | Liveness. |
